@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111111" />
+  <title>오늘 무리해도 될까?</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #181b21;
+      --panel-2: #20242c;
+      --text: #f4f5f7;
+      --muted: #aab0ba;
+      --line: #303641;
+      --accent: #ffffff;
+      --green: #3ddc84;
+      --yellow: #ffd45a;
+      --red: #ff6b6b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   "Noto Sans KR", Arial, sans-serif;
+      line-height: 1.45;
+    }
+
+    .wrap {
+      width: min(100%, 540px);
+      margin: 0 auto;
+      padding: 18px 16px 32px;
+    }
+
+    h1 {
+      margin: 6px 0 4px;
+      font-size: 28px;
+      letter-spacing: -0.04em;
+    }
+
+    .sub {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-weight: 800;
+      margin-bottom: 12px;
+      font-size: 17px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field:last-child { margin-bottom: 0; }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    label {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    output {
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .choice {
+      position: relative;
+    }
+
+    .choice input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .choice span {
+      display: block;
+      padding: 11px 10px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+      user-select: none;
+    }
+
+    .choice input:checked + span {
+      border-color: var(--accent);
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 14px;
+      padding: 15px 16px;
+      background: var(--accent);
+      color: #111;
+      font-size: 17px;
+      font-weight: 900;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .result {
+      display: none;
+      margin-top: 14px;
+      border-radius: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .result.show { display: block; }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .result h2 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+
+    .result p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .details {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .green .badge { background: rgba(61,220,132,.15); color: var(--green); }
+    .yellow .badge { background: rgba(255,212,90,.15); color: var(--yellow); }
+    .red .badge { background: rgba(255,107,107,.15); color: var(--red); }
+
+    .footnote {
+      color: #858c97;
+      font-size: 12px;
+      margin: 14px 2px 0;
+    }
+
+    .mini {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    @media (max-width: 380px) {
+      h1 { font-size: 25px; }
+      .choice-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>오늘 무리해도 될까?</h1>
+    <p class="sub">갤럭시 핏으로 보는 공연 컨디션 체크</p>
+
+    <section class="card">
+      <div class="section-title">아침 상태</div>
+
+      <div class="field">
+        <div class="label-row">
+          <label for="sleep">평소보다 수면 부족</label>
+          <output id="sleepOut">0시간</output>
+        </div>
+        <input id="sleep" type="range" min="0" max="4" step="0.5" value="0" />
+      </div>
+
+      <div class="field">
+        <div class="label-row">
+          <label for="hr">평소보다 안정 심박수 상승</label>
+          <output id="hrOut">0 bpm</output>
+        </div>
+        <input id="hr" type="range" min="0" max="20" step="1" value="0" />
+      </div>
+
+      <div class="field">
+        <div class="label-row">
+          <label for="recovery">회복감</label>
+          <output id="recoveryOut">7 / 10</output>
+        </div>
+        <input id="recovery" type="range" min="0" max="10" step="1" value="7" />
+      </div>
+
+      <div class="field">
+        <label>증상</label>
+        <div class="choice-grid" style="margin-top:8px">
+          <label class="choice">
+            <input type="checkbox" id="pain" />
+            <span>심한 근육통·몸 무거움</span>
+          </label>
+          <label class="choice">
+            <input type="checkbox" id="cold" />
+            <span>감기·몸살 기운</span>
+          </label>
+          <label class="choice">
+            <input type="checkbox" id="danger" />
+            <span>흉통·어지럼·호흡곤란</span>
+          </label>
+          <label class="choice">
+            <input type="checkbox" id="throat" />
+            <span>목 상태 매우 나쁨</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">무대 전 3분 테스트 <span class="mini">(선택)</span></div>
+
+      <div class="field">
+        <div class="label-row">
+          <label for="warmHr">평소보다 심박수 상승</label>
+          <output id="warmHrOut">0 bpm</output>
+        </div>
+        <input id="warmHr" type="range" min="0" max="20" step="1" value="0" />
+      </div>
+
+      <div class="field">
+        <div class="label-row">
+          <label for="rpe">평소보다 더 힘든 정도</label>
+          <output id="rpeOut">0점</output>
+        </div>
+        <input id="rpe" type="range" min="0" max="5" step="1" value="0" />
+      </div>
+    </section>
+
+    <button id="checkBtn">오늘 상태 판단하기</button>
+
+    <section id="result" class="result" aria-live="polite">
+      <div class="badge" id="badge"></div>
+      <h2 id="resultTitle"></h2>
+      <p id="resultText"></p>
+      <div class="details" id="details"></div>
+    </section>
+
+    <p class="footnote">
+      개인 기준선은 정상적인 날 7~14일의 아침 안정 심박수와 수면 패턴으로 잡으세요.
+      이 도구는 의료 진단용이 아닙니다.
+    </p>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const sliders = [
+      ["sleep", "sleepOut", v => `${v}시간`],
+      ["hr", "hrOut", v => `${v} bpm`],
+      ["recovery", "recoveryOut", v => `${v} / 10`],
+      ["warmHr", "warmHrOut", v => `${v} bpm`],
+      ["rpe", "rpeOut", v => `${v}점`]
+    ];
+
+    sliders.forEach(([id, out, fmt]) => {
+      const el = $(id);
+      const update = () => $(out).textContent = fmt(el.value);
+      el.addEventListener("input", update);
+      update();
+    });
+
+    $("checkBtn").addEventListener("click", () => {
+      const sleep = Number($("sleep").value);
+      const hr = Number($("hr").value);
+      const recovery = Number($("recovery").value);
+      const warmHr = Number($("warmHr").value);
+      const rpe = Number($("rpe").value);
+
+      const pain = $("pain").checked;
+      const cold = $("cold").checked;
+      const danger = $("danger").checked;
+      const throat = $("throat").checked;
+
+      let yellow = 0;
+      const reasons = [];
+
+      if (sleep >= 1) {
+        yellow++;
+        reasons.push(`수면 ${sleep}시간 부족`);
+      }
+      if (sleep >= 2) yellow++;
+
+      if (hr >= 5) {
+        yellow++;
+        reasons.push(`안정 심박 +${hr} bpm`);
+      }
+      if (hr >= 10) yellow++;
+
+      if (recovery <= 6) {
+        yellow++;
+        reasons.push(`회복감 ${recovery}/10`);
+      }
+      if (recovery <= 3) yellow++;
+
+      if (pain) {
+        yellow++;
+        reasons.push("심한 근육통·몸 무거움");
+      }
+      if (cold) {
+        yellow += 2;
+        reasons.push("감기·몸살 기운");
+      }
+      if (throat) {
+        yellow++;
+        reasons.push("목 상태 매우 나쁨");
+      }
+
+      let warmupFlags = 0;
+      if (warmHr >= 10) {
+        warmupFlags++;
+        reasons.push(`워밍업 심박 +${warmHr} bpm`);
+      }
+      if (rpe >= 2) {
+        warmupFlags++;
+        reasons.push(`체감 난이도 +${rpe}점`);
+      }
+      yellow += warmupFlags;
+
+      const result = $("result");
+      result.className = "result show";
+
+      if (danger) {
+        result.classList.add("red");
+        $("badge").textContent = "빨간불";
+        $("resultTitle").textContent = "공연보다 상태 확인이 우선";
+        $("resultText").textContent =
+          "흉통·어지럼·평소와 다른 호흡곤란이 있으면 고강도 활동을 피하고 필요하면 진료를 받으세요.";
+      } else if (
+        hr >= 10 ||
+        recovery <= 3 ||
+        cold ||
+        warmupFlags === 2 ||
+        yellow >= 4
+      ) {
+        result.classList.add("red");
+        $("badge").textContent = "빨간불";
+        $("resultTitle").textContent = "오늘은 무리하지 않기";
+        $("resultText").textContent =
+          "리허설 반복과 추가 연습을 크게 줄이고, 무대에서도 전 구간을 100%로 밀어붙이지 않는 편이 좋습니다.";
+      } else if (yellow >= 2) {
+        result.classList.add("yellow");
+        $("badge").textContent = "노란불";
+        $("resultTitle").textContent = "강도 20~30% 낮추기";
+        $("resultText").textContent =
+          "공연은 가능해 보여도 리허설·개인 연습·추가 운동을 줄이고, 회복과 수분 섭취를 우선하세요.";
+      } else {
+        result.classList.add("green");
+        $("badge").textContent = "녹색불";
+        $("resultTitle").textContent = "평소 강도로 진행 가능";
+        $("resultText").textContent =
+          "현재 입력 기준으로는 뚜렷한 경고 신호가 없습니다. 무대 전 워밍업 반응이 평소와 다른지만 다시 확인하세요.";
+      }
+
+      $("details").textContent = reasons.length
+        ? `감지된 신호: ${reasons.join(" · ")}`
+        : "감지된 경고 신호 없음";
+
+      result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  </script>
+</body>
+</html>
